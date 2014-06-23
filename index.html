@@ -1,0 +1,411 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Varys - Application-Aware Network Scheduling</title>
+
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="font-awesome-4.1.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="css/custom.css">
+    
+    <script>
+      (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+      (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+      m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+      })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+      ga('create', 'UA-4096845-3', 'varys.net');
+      ga('send', 'pageview');
+
+    </script>
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+      <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
+    <![endif]-->
+  </head>
+
+  <body data-spy="scroll" data-offset="70" data-target="#myNavbar">
+    <div class="navbar navbar-default navbar-fixed-top" role="navigation">
+      <div class="container">
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-responsive-collapse">
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="index.html">Varys</a>
+        </div>
+        <div class="navbar-collapse collapse navbar-responsive-collapse" id="myNavbar">
+          <ul class="nav navbar-nav">
+            <li class="active"><a href="#overview">Overview</a></li>
+            <li><a href="#performance">Performance</a></li>
+            <li><a href="#research">Research</a></li>
+            <li><a href="#faq">FAQ</a></li>
+          </ul>
+        </div><!--/.nav-collapse -->
+      </div>
+    </div>
+
+    <div class="jumbotron">
+      <div class="container" align="center">
+        <h1>Varys</h1>
+        <p>Application-Aware Network Scheduler</p>
+        <p>&nbsp;</p>
+        <p align="center"><a class="btn btn-success" role="button" href="http://www.github.com/coflow/varys"><i class="fa fa-github fa-lg"></i> Download Varys</a></p>
+      </div>
+    </div>
+
+    <div class="container">
+      <div class="row row-padded">
+        <div class="col-lg-3">
+          <h3><i class="fa fa-rocket fa-lg"></i> Speed</h3>
+          <p class="lead text-muted">3x faster communication.</p>
+          <p>Using a novel coflow scheduling algorithm, Varys minimizes communication times of data-parallel applications without starving anyone. </p>
+        </div>
+        <div class="col-lg-3">
+          <h3><i class="fa fa-clock-o fa-lg"></i> Predictability</h3>
+          <p class="lead text-muted">2x more often on time.</p>
+          <p>Varys uses admission control to support soft deadlines for timely completion of most coflows. </p>
+        </div>
+        <div class="col-lg-3">
+          <h3><i class="fa fa-gears fa-lg"></i> Multi-Tenancy</h3>
+          <p class="lead text-muted">Informed cluster sharing.</p>
+          <p>Using Varys, coexisting applications, frameworks, or users avoid collateral damage when optimizing respective communication performance. </p>
+        </div>
+        <div class="col-lg-3">
+          <h3><i class="fa fa-magic fa-lg"></i> Transparency</h3>
+          <p class="lead text-muted">No changes to user jobs.</p>
+          <p>Transfers data from sources to destinations without tweaking the number of connections or playing with bytes-in-flight in each connection. </p>
+        </div>
+      </div>
+    </div>
+    <hr>
+
+    <div class="container">
+      <div class="row row-padded">
+        <div class="col-lg-12">
+          <h1 id="overview">What is Varys?</h1>
+          <p>
+            Varys is an open source network manager/scheduler that aims to improve communication performance of Big Data applications.
+            Its target applications/jobs include those written in Spark, Hadoop, YARN, BSP, and similar data-parallel frameworks.
+          </p>
+          <p>
+            Despite the differences of end goals and/or programmability among data-parallel frameworks, their communication is structured, takes place between groups of machines in successive computation stages, and often involves a collection of parallel flows.
+            More importantly, communication in these applications exhibit the <em>all-or-nothing</em> property&mdash;<em>a communication stage cannot finish until all its flows have completed</em>. 
+            The <a href="#coflow">coflow</a> abstraction represents such collections of parallel flows to convey job-specific communication requirements – for example, minimizing completion time or meeting a deadline – to the network and enables application-aware network scheduling.
+          </p>
+          <p>
+            Varys provides a simple API that allows data-parallel frameworks to express their communication requirements as coflows with minimal changes to the framework. 
+            Using coflows as the basic abstraction of network scheduling, Varys implements <a href="#scheduler">novel schedulers</a> either to make applications faster or to make time-restricted applications complete within deadlines.
+          </p>
+        </div>
+      </div>
+      <div class="row row-padded">
+        <div class="col-lg-4">
+          <h3>How to Use it?</h3>
+          <p>
+            Enabling Varys in <em>all</em> the applications written in a framework can be as simple as changing the <samp>send</samp> and <samp>recv</samp> calls (or their equivalents) to their analogous <samp>put</samp> and <samp>get</samp> methods in the coflow API, which are exposed through the <samp>VarysClient</samp> class.
+          </p>
+          <p>
+            Existing user-written jobs can take advantage of coflows <em>without</em> any modifications.
+          </p>
+          <p>
+            <!-- <a href="http://www.github.com/coflow/varys-demo">See</a> the coflow API in action in a simplistic data-parallel framework. -->
+          </p>
+        </div>
+        <div class="col-lg-8">
+          <h3>The Coflow API</h3>
+          <table class="table table-striped table-bordered table-condensed small">
+            <tbody>
+              <tr>
+                <td>Method Signatures in Scala</td>
+                <td>Calling Process</td>
+              </tr>
+              <tr>
+                <td><samp>def registerCoflow(coflowDesc: CoflowDescription): String</samp></td>
+                <td>Driver</td>
+              </tr>
+              <tr>
+                <td><samp>def putObject[T](objectId: String, obj: T, coflowId: String, size:Long)</samp></td>
+                <td>Sender</td>
+              </tr>
+              <tr>
+                <td><samp>def getObject[T](objectId: String, coflowId: String): T</samp></td>
+                <td>Receiver</td>
+              </tr>
+              <tr>
+                <td><samp>def unregisterCoflow(coflowId: String)</samp></td>
+                <td>Driver</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+    <hr>
+      
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 id="performance">Performance</h1>
+          <p>
+            Varys is most effective when applied to a number of concurrently-running coflows from different jobs. 
+            We have evaluated Varys by deploying it on a 100-node Amazon EC2 cluster and running traces collected from a 3000-node production Hive/Hadoop cluster at Facebook, and we compare Varys's performance with that of TCP fair sharing without using the coflow abstraction.
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-6" align="center">
+          <h3>Minimizes Communication Time</h3>
+          <img src="images/mincct.png" class="img-responsive img-thumbnail" alt="As jobs spend more time in communication, Varys improves their communication performance even more." title="As jobs spend more time in communication, Varys improves their communication performance even more.">
+        </div>
+        <div class="col-lg-6" align="center">
+          <h3>Meets More Deadlines</h3>
+          <img src="images/deadline.png" class="img-responsive img-thumbnail" alt="As deadlines become less stringent, Varys completes more and more coflows within time." title="As deadlines become less stringent, Varys completes more and more coflows within time.">
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <br/>
+          <p>
+            More details on different aspects of Varys's performance&mdash;comparisons with newer per-flow prioritization schemes or behavior with increasing load&mdash;can be found in accompanying research <a href="#papers">papers</a>.
+          </p>
+        </div>
+      </div>
+    </div>
+    <hr>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 id="research">Research</h1>
+          <h3 id="coflow">The Coflow Abstraction</h3>
+          <p>
+            A coflow is a collection of flows that share a common performance goal, such as minimizing the completion time of the latest flow or ensuring that flows meet a common deadline. 
+            Currently, we assume that the amount of data each flow needs to transfer is known before it starts. 
+            The flows of a coflow are <em>independent</em> in that the input of a flow does not depend on the output of another in the same coflow, and the endpoints of these flows can be in one or more machines. 
+          </p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-5">
+          <p>
+            Effectively, one can consider a coflow to be a <em>data-parallel network job</em>.
+          </p>
+          <p>
+            Examples of coflows include the shuffle between the mappers and the reducers in MapReduce and the communication stage in the bulk-synchronous parallel (BSP) model.
+            In fact, coflows can express most communication patterns between successive computation stages of data-parallel applications. 
+          </p>
+          <p>
+            Finally, traditional point-to-point communication is also a coflow with a single flow. 
+          </p>
+        </div>
+        <div class="col-lg-7">
+          <table class="table table-striped table-bordered table-condensed small">
+            <tbody>
+              <tr>
+                <td></td>
+                <td>Example Frameworks</td>
+                <td>Coflow Structure</td>
+              </tr>
+              <tr>
+                <td>Shuffle in dataflow pipelines</td>
+                <td>Spark, Hadoop</td>
+                <td>Many-to-Many</td>
+              </tr>
+              <tr>
+                <td>Broadcast</td>
+                <td>Spark</td>
+                <td>One-to-All</td>
+              </tr>
+              <tr>
+                <td>Aggregation</td>
+                <td>Spark, Hadoop</td>
+                <td>Many-to-One</td>
+              </tr>
+              <tr>
+                <td>Global communication barriers</td>
+                <td>BSP</td>
+                <td>All-to-All</td>
+              </tr>
+              <tr>
+                <td>Parallel read/write from/to distributed storage</td>
+                <td>HDFS</td>
+                <td>Many One-to-One</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-7">
+          <h3 id="scheduler">How/Why Does Coflow Scheduling Work in Varys?</h3>
+          <p>
+            Varys schedules coflows using heuristics developed to solve the recently discovered <em>concurrent open shop scheduling with coupled resources</em> problem.
+            Similar to most scheduling problems, optimal coflow scheduling is computationally intractable. 
+          </p>
+          <p>
+            From 10000 feet, the algorithm proceeds in two steps: Varys keeps an ordered list of coflows, preempting whenever necessary. Next, it uses an algorithm to allocate minimum required bandwidth to each flow of a coflow to complete all of its flows together. 
+          </p>
+          <p>
+            In essence, Varys minimizes interleaving across coflows to minimize coflow completion times (CCT), while sacrificing flow-level fairness or flow completion times (FCT) that are not correlated to a job's completion time.
+          </p>
+          <h4>Example</h4>
+          <p>
+            Consider two coflows C<sub>1</sub> and C<sub>2</sub>; C<sub>1</sub> has three flows transferring 1, 2, and 4 units of data, while C<sub>2</sub> has two flows transferring 2 data units each.
+          </p>
+          <p>
+            Per-flow schemes focus on fair sharing or decreasing FCT, without caring about application's completion. Varys does the opposite. 
+          </p>
+          <br/>
+        </div>
+        <div class="col-lg-5">
+          <h3 id="scheduler">&nbsp;</h3>
+          <figure>
+          <img src="images/ex1-input.png" class="img-responsive img-thumbnail">
+          <figcaption>Coflow scheduling over a 3x3 datacenter fabric with three ingress/egress ports. Flows in ingress ports are organized by destinations and color-coded by coflows – C<sub>1</sub> in orange and C<sub>2 </sub> in blue.</figcaption>
+          </figure>
+          <br/>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-4">
+          <figure>
+          <img src="images/ex1-fair.png" class="img-responsive img-thumbnail">
+          <figcaption><em>Per-flow fairness:</em> The average FCT and CCT are respectively 3.4 and 4 time units.</figcaption>
+          </figure>
+        </div>
+        <div class="col-lg-4">
+          <figure>
+          <img src="images/ex1-pdq.png" class="img-responsive img-thumbnail">
+          <figcaption><em>Per-flow prioritization:</em> The average FCT and CCT are respectively 2.8 and 3.5 time units.</figcaption>
+          </figure>
+        </div>
+        <div class="col-lg-4">
+          <figure>
+          <img src="images/ex1-varys.png" class="img-responsive img-thumbnail">
+          <figcaption><em>Varys with inter-coflow scheduling:</em> The average FCT and CCT are both 3 time units.</figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-12">
+          <h3 id="papers">Relevant Publications</h3>
+          <p>More details on Varys, its performance, the coflow abstraction, and Varys's predecessor system (Orchestra) can be found in the following papers. </p>
+          <ul>
+            <li><a href="http://www.mosharaf.com/wp-content/uploads/varys-sigcomm14.pdf">Efficient Coflow Scheduling with Varys</a>, Mosharaf Chowdhury, Yuan Zhong, Ion Stoica, ACM SIGCOMM, 2014.</li>
+            <li><a href="http://www.mosharaf.com/wp-content/uploads/coflow-hotnets2012.pdf">Coflow: A Networking Abstraction for Cluster Applications</a>, Mosharaf Chowdhury, Ion Stoica, ACM HotNets-XI, 2012.</li>
+            <li><a href="http://www.mosharaf.com/wp-content/uploads/orchestra-sigcomm11.pdf">Managing Data Transfers in Computer Clusters with Orchestra</a>, Mosharaf Chowdhury, Matei Zaharia, Justin Ma, Michael Jordan, Ion Stoica, ACM SIGCOMM, 2011.</li>
+          </ul>
+          <p>Varys also exposes APIs to find the machines with the most and the least network usage &ndash; <samp>getBestRxMachines</samp> and <samp>getBestTxMachines</samp> &ndash; that can be used to perform, for example, network-aware replica placement in HDFS as outlined in the following paper. </p>
+          <ul>
+            <li><a href="http://www.mosharaf.com/wp-content/uploads/sinbad-sigcomm13.pdf">Leveraging Endpoint Flexibility in Data-Intensive Clusters</a>, Mosharaf Chowdhury, Srikanth Kandula, Ion Stoica, ACM SIGCOMM, 2013.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <hr>
+
+    <div class="container">
+      <div class="row">
+        <div class="col-lg-12">
+          <h1 id="faq">Varys FAQ</h1>
+          <p class="question">Is Varys a new protocol? Does it depend on a new one?</p>
+          <p class="answer">
+            No. 
+            Varys runs in the application layer on top of whatever underlying networking protocol your cluster uses. 
+            No changes to your hardware or OS is required. 
+          </p>
+          <p class="answer">
+            Except for minor changes to the frameworks, user jobs can take advantage of Varys transparently as well.
+          </p>
+
+          <p class="question">Will it always improve performance?</p>
+          <p class="answer">
+            Varys will improve performance most of the time, specially when you have a multi-user, multi-framework cluster. 
+            Currently, overheads due to Varys's centralized design sometimes make it less useful for sub-second jobs and cause deadline misses on rare occasions. 
+            We are working on both directions: to make it more efficient by design and to better engineer the current system.
+          </p>
+
+          <p class="question">Which frameworks support Varys?</p>
+          <p class="answer">
+            We are currently working on ensuring Varys support in Spark and plan on enabling Hadoop MapReduce 2.0 as well. 
+            We will appreciate your help in any of these endeavors.
+          </p>
+
+          <p class="question">Which languages does Varys support?</p>
+          <p class="answer">
+            Currently Varys provides an interface only to JVM-based languages. 
+            It can support non-JVM languages as well, but we need your help to implement the language-specific interface to Varys.
+          </p>
+
+          <p class="question">What license is Varys under?</p>
+          <p class="answer">
+            Varys is under the <a href="http://www.apache.org/licenses/LICENSE-2.0.html">Apache 2.0 license</a>.
+          </p>
+
+          <p class="question">How can I contribute?</p>
+          <p class="answer">
+            If you would like to report an issue, post it to the <a href="mailto:varys-issues@googlegroups.com">Varys Issues</a> mailing list.
+          </p>
+          <p class="answer">
+            If you have already resolved one, do send us a pull request on <a href="https://github.com/coflow/varys">GitHub</a>. 
+            We want to hear about your experience using Varys.
+          </p>
+          <p class="answer">
+            Finally, if you want to discuss a new idea, talk to us at the <a href="mailto:varys-developers@googlegroups.com">Varys Developers</a> mailing list.
+          </p>
+          
+          <p class="question">Where can I get more help?</p>
+          <p class="answer">
+            Please post on the <a href="mailto:varys-users@googlegroups.com">Varys Users</a> mailing list. We will be glad to help!
+          </p>
+        </div>
+      </div>
+    </div>
+    <hr>
+    
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+    <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
+    <script>
+      /**
+       * Check a href for an anchor. If exists, and in document, scroll to it.
+       * If href argument ommited, assumes context (this) is HTML Element,
+       * which will be the case when invoked by jQuery after an event
+       */
+      function scroll_if_anchor(href) {
+          href = typeof(href) == "string" ? href : $(this).attr("href");
+
+          // You could easily calculate this dynamically if you prefer
+          var fromTop = 60;
+
+          // If our Href points to a valid, non-empty anchor, and is on the same page (e.g. #foo)
+          // Legacy jQuery and IE7 may have issues: http://stackoverflow.com/q/1593174
+          if(href.indexOf("#") == 0) {
+              var $target = $(href);
+
+              // Older browser without pushState might flicker here, as they momentarily
+              // jump to the wrong position (IE < 10)
+              if($target.length) {
+                  $('html, body').animate({ scrollTop: $target.offset().top - fromTop });
+                  if(history && "pushState" in history) {
+                      history.pushState({}, document.title, window.location.pathname + href);
+                      return false;
+                  }
+              }
+          }
+      }    
+
+      // When our page loads, check to see if it contains and anchor
+      scroll_if_anchor(window.location.hash);
+
+      // Intercept all anchor clicks
+      $("body").on("click", "a", scroll_if_anchor);
+    </script>
+  </body>
+</html>
