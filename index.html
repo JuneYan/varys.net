@@ -243,7 +243,7 @@
         </div>
       </div>
       <div class="row">
-        <div class="col-lg-7">
+        <div class="col-lg-8">
           <h3 id="scheduler">How/Why Does Coflow Scheduling Work in Varys?</h3>
           <p>
             Varys schedules coflows using heuristics developed to solve the recently discovered <em>concurrent open shop scheduling with coupled resources</em> problem.
@@ -262,35 +262,49 @@
           <p>
             Per-flow schemes focus on fair sharing or decreasing FCT, without caring about application's completion. Varys does the opposite. 
           </p>
-          <br/>
         </div>
-        <div class="col-lg-5">
-          <h3 id="scheduler">&nbsp;</h3>
-          <figure>
-          <img src="images/ex1-input.png" class="img-responsive img-thumbnail">
-          <figcaption>Coflow scheduling over a 3x3 datacenter fabric with three ingress/egress ports. Flows in ingress ports are organized by destinations and color-coded by coflows – C<sub>1</sub> in orange and C<sub>2 </sub> in blue.</figcaption>
-          </figure>
-          <br/>
+        <div class="col-lg-4">
+          <h3>&nbsp;</h3>
+          <div class="thumbnail">
+            <img src="images/ex1-input.png" class="img-responsive">
+            <div class="caption">
+              <p>
+                Coflow scheduling over a 3x3 datacenter fabric with three ingress/egress ports. Flows in ingress ports are organized by their destinations and color-coded by coflows: C<sub>1</sub> in orange and C<sub>2 </sub> in blue.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="row">
         <div class="col-lg-4">
-          <figure>
-          <img src="images/ex1-fair.png" class="img-responsive img-thumbnail">
-          <figcaption><em>Per-flow fairness:</em> The average FCT and CCT are respectively 3.4 and 4 time units.</figcaption>
-          </figure>
+          <div class="thumbnail">
+            <img src="images/ex1-fair.png" class="img-responsive">
+            <div class="caption">
+              <p>
+                <em>Per-flow fairness:</em> The average FCT and CCT are respectively 3.4 and 4 time units.
+              </p>
+            </div>
+          </div>
         </div>
         <div class="col-lg-4">
-          <figure>
-          <img src="images/ex1-pdq.png" class="img-responsive img-thumbnail">
-          <figcaption><em>Per-flow prioritization:</em> The average FCT and CCT are respectively 2.8 and 3.5 time units.</figcaption>
-          </figure>
+          <div class="thumbnail">
+            <img src="images/ex1-pdq.png" class="img-responsive">
+            <div class="caption">
+              <p>
+                <em>Per-flow prioritization:</em> The average FCT and CCT are respectively 2.8 and 3.5 time units.
+              </p>
+            </div>
+          </div>
         </div>
         <div class="col-lg-4">
-          <figure>
-          <img src="images/ex1-varys.png" class="img-responsive img-thumbnail">
-          <figcaption><em>Varys with inter-coflow scheduling:</em> The average FCT and CCT are both 3 time units.</figcaption>
-          </figure>
+          <div class="thumbnail">
+            <img src="images/ex1-varys.png" class="img-responsive">
+            <div class="caption">
+              <p>
+                <em>Varys with inter-coflow scheduling:</em> The average FCT and CCT are both 3 time units.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
       <div class="row">
