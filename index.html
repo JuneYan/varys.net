@@ -95,12 +95,7 @@
             Its target applications/jobs include those written in Spark, Hadoop, YARN, BSP, and similar data-parallel frameworks.
           </p>
           <p>
-            Despite the differences of end goals and/or programmability among data-parallel frameworks, their communication is structured, takes place between groups of machines in successive computation stages, and often involves a collection of parallel flows.
-            More importantly, communication in these applications exhibit the <em>all-or-nothing</em> property&mdash;<em>a communication stage cannot finish until all its flows have completed</em>. 
-            The <a href="#coflow">coflow</a> abstraction represents such collections of parallel flows to convey job-specific communication requirements – for example, minimizing completion time or meeting a deadline – to the network and enables application-aware network scheduling.
-          </p>
-          <p>
-            Varys provides a simple API that allows data-parallel frameworks to express their communication requirements as coflows with minimal changes to the framework. 
+            Varys provides a simple API that allows data-parallel frameworks to express their communication requirements as <a href="#coflow">coflows</a> with minimal changes to the framework. 
             Using coflows as the basic abstraction of network scheduling, Varys implements <a href="#scheduler">novel schedulers</a> either to make applications faster or to make time-restricted applications complete within deadlines.
           </p>
         </div>
@@ -186,17 +181,19 @@
           <h1 id="research">Research</h1>
           <h3 id="coflow">The Coflow Abstraction</h3>
           <p>
-            A coflow is a collection of flows that share a common performance goal, such as minimizing the completion time of the latest flow or ensuring that flows meet a common deadline. 
+            Despite the differences of end goals and/or programmability among data-parallel frameworks, their communication is structured, takes place between groups of machines in successive computation stages, and often involves a collection of parallel flows.
+            More importantly, communication in these applications exhibit the <em>all-or-nothing</em> property&mdash;<em>a communication stage cannot finish until all its flows have completed</em>. 
+          </p>
+          <p>
+            The coflow abstraction represents such collections of parallel flows to convey job-specific communication requirements – for example, minimizing completion time or meeting a deadline – to the network and enables application-aware network scheduling.
             Currently, we assume that the amount of data each flow needs to transfer is known before it starts. 
             The flows of a coflow are <em>independent</em> in that the input of a flow does not depend on the output of another in the same coflow, and the endpoints of these flows can be in one or more machines. 
+            Effectively, one can consider a coflow to be a <em>data-parallel network job</em>.
           </p>
         </div>
       </div>
       <div class="row">
         <div class="col-lg-5">
-          <p>
-            Effectively, one can consider a coflow to be a <em>data-parallel network job</em>.
-          </p>
           <p>
             Examples of coflows include the shuffle between the mappers and the reducers in MapReduce and the communication stage in the bulk-synchronous parallel (BSP) model.
             In fact, coflows can express most communication patterns between successive computation stages of data-parallel applications. 
@@ -329,14 +326,18 @@
       <div class="row">
         <div class="col-lg-12">
           <h1 id="faq">Varys FAQ</h1>
-          <p class="question">Is Varys a new protocol? Does it depend on a new one?</p>
+          <p class="question">Is Varys a new networking protocol? Does it depend on a new one?</p>
           <p class="answer">
             No. 
-            Varys runs in the application layer on top of whatever underlying networking protocol your cluster uses. 
+            Varys runs in the application layer on top of underlying transport protocols (e.g., TCP). 
             No changes to your hardware or OS is required. 
+            Except for minor changes to the frameworks, user jobs can transparently take advantage of Varys as well.
           </p>
+
+          <p class="question">Varys seems to have <samp>put</samp> and <samp>get</samp> methods. Is Varys a storage system? Does it implement one underneath?</p>
           <p class="answer">
-            Except for minor changes to the frameworks, user jobs can take advantage of Varys transparently as well.
+            No, Varys does not have/need its own storage system. 
+            It sends and receives from user process (if data is in-memory) or from disk (if data is already stored there). 
           </p>
 
           <p class="question">Will it always improve performance?</p>
@@ -348,7 +349,7 @@
 
           <p class="question">Which frameworks support Varys?</p>
           <p class="answer">
-            We are currently working on ensuring Varys support in Spark and plan on enabling Hadoop MapReduce 2.0 as well. 
+            We are working on ensuring Varys support in Spark and plan on enabling Hadoop MapReduce 2.0 as well. 
             We will appreciate your help in any of these endeavors.
           </p>
 
@@ -383,6 +384,15 @@
       </div>
     </div>
     <hr>
+    
+    <div class="container">
+      <p class="text-muted">
+        Varys is being developed in the <a href="https://amplab.cs.berkeley.edu">AMPLab</a> by <a href="http://www.mosharaf.com">Mosharaf Chowdhury</a>, <a href="http://www.columbia.edu/~yz2561/">Yuan Zhong</a>, and <a href="http://www.cs.berkeley.edu/~istoica">Ion Stoica</a>.
+      </p>
+      <p class="text-muted">
+        This research is supported in part by NSF CISE Expeditions Award CCF-1139158, LBNL Award 7076018, and DARPA XData Award FA8750-12-2-0331, and gifts from Amazon Web Services, Google, SAP,  The Thomas and Stacey Siebel Foundation, Apple, Inc., C3Energy, Cisco, Cloudera, EMC, Ericsson, Facebook, GameOnTalis, Guavus, HP, Huawei, Intel, Microsoft, NetApp, Pivotal, Splunk, Virdata, VMware, WANdisco and Yahoo!.
+      </p>
+    </div>
     
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
     <script src="http://netdna.bootstrapcdn.com/bootstrap/3.1.1/js/bootstrap.min.js"></script>
